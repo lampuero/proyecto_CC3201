@@ -26,6 +26,7 @@ public class Base{
     PreparedStatement agregarEquipo;
     PreparedStatement getUltimo;
     PreparedStatement updateUltimo;
+    PreparedStatement test;
     
 	public Base(String server){
 	  SERVER=server;
@@ -45,6 +46,7 @@ public class Base{
         agregarJugador = DMC.prepareStatement("INSERT INTO elopic.Jugador (id,partido, server,teamid,summoner,champion)  VALUES (?,?,?,?,?,?)" );
         existSummoner = DMC.prepareStatement("SELECT count(*) AS x FROM elopic.summoner WHERE id = ? AND server = ?");
         agregarSummoner = DMC.prepareStatement("INSERT INTO elopic.Summoner (id, server, nombre, last)  VALUES (?,?,?,to_timestamp(0))" );
+        test = DMC.prepareStatement("SELECT * FROM elopic.summoner");
         getUltimo.setString(1, SERVER);
         updateUltimo.setString(2, SERVER);
         agregarPartido.setString(2, SERVER);
