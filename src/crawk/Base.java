@@ -128,7 +128,7 @@ public class Base{
         }
       DMC.commit();
       }
-      
+
 	  //for(int i = 0; i<5;i++){//
 	  
 	    
@@ -218,5 +218,8 @@ public class Base{
 		}
 		*/
 	}
+    public void agregarJugador(){
+
+    }
 
 }
