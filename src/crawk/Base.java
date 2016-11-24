@@ -37,20 +37,20 @@ public class Base{
       props.setProperty("sslfactory","org.postgresql.ssl.NonValidatingFactory");
       try {
         DMC = DriverManager.getConnection(url, props);
-        getUltimo = DMC.prepareStatement("SELECT id FROM elopictemp.summoner WHERE server = ? ORDER BY last ASC LIMIT 1");
-        updateUltimo = DMC.prepareStatement("UPDATE elopictemp.summoner SET  last= NOW() WHERE id=? AND server=?");
-        existPartido = DMC.prepareStatement("SELECT count(*) AS x FROM elopictemp.partido WHERE id = ? AND server = ?");
-        agregarPartido = DMC.prepareStatement("INSERT INTO elopictemp.partido (id,server,queuetype,season,version,creation)  VALUES (?,?,?,?,?,?)" );
-        agregarEquipo = DMC.prepareStatement("INSERT INTO elopictemp.equipo (partido,server,ganador)  VALUES (?,?,?)" );
-        agregarJugador = DMC.prepareStatement("INSERT INTO elopictemp.Jugador (partido, server,summoner,champion,ganador)  VALUES (?,?,?,?,?)" );
-        existSummoner = DMC.prepareStatement("SELECT count(*) AS x FROM elopictemp.summoner WHERE id = ? AND server = ?");
-        agregarSummoner = DMC.prepareStatement("INSERT INTO elopictemp.Summoner (id, server, nombre, last)  VALUES (?,?,?,to_timestamp(0))" );
+        getUltimo = DMC.prepareStatement("SELECT id FROM elopic.summoner WHERE server = ? ORDER BY last ASC LIMIT 1");
+        updateUltimo = DMC.prepareStatement("UPDATE elopic.summoner SET  last= NOW() WHERE id=? AND server=?");
+        existPartido = DMC.prepareStatement("SELECT count(*) AS x FROM elopic.partido WHERE id = ? AND server = ?");
+        agregarPartido = DMC.prepareStatement("INSERT INTO elopic.partido (id,server,queuetype,season,version,creation)  VALUES (?,?,?,?,?,?)" );
+        agregarEquipo = DMC.prepareStatement("INSERT INTO elopic.equipo (teamid,partido,server,ganador)  VALUES (?,?,?,?)" );
+        agregarJugador = DMC.prepareStatement("INSERT INTO elopic.Jugador (id,partido, server,teamid,summoner,champion)  VALUES (?,?,?,?,?,?)" );
+        existSummoner = DMC.prepareStatement("SELECT count(*) AS x FROM elopic.summoner WHERE id = ? AND server = ?");
+        agregarSummoner = DMC.prepareStatement("INSERT INTO elopic.Summoner (id, server, nombre, last)  VALUES (?,?,?,to_timestamp(0))" );
         getUltimo.setString(1, SERVER);
         updateUltimo.setString(2, SERVER);
         agregarPartido.setString(2, SERVER);
         existPartido.setString(2, SERVER);
-        agregarEquipo.setString(2, SERVER);
-        agregarJugador.setString(2, SERVER);
+        agregarEquipo.setString(3, SERVER);
+        agregarJugador.setString(3, SERVER);
         existSummoner.setString(2, SERVER);
         agregarSummoner.setString(2, SERVER);
         DMC.setAutoCommit(false);
@@ -86,15 +86,14 @@ public class Base{
 		return Resultado;
 	}
 
-	public void agregarPartido(long idpart,int[][][]p, String[][] nombres, String[] valores, int creation) throws SQLException{
-	  //p[gano][champ/player][index]
+	public boolean existePartido(long idpart) throws SQLException{
 	  existPartido.setLong(1, idpart);
 	  ResultSet rs = existPartido.executeQuery();
-	  if(rs.next()){
-	    if (rs.getInt("x") == 1){
-	      System.out.println("Partido repetido");
-	      return;
-	    }
+	  return rs.getInt("x") == 1;
+	}
+	public void agregarPartido(long idpart,int[][][]p, String[][] nombres, String[] valores, int creation) throws SQLException{
+	  if(existePartido(idpart)){
+	    return;
 	  }
       agregarPartido.setLong(1, idpart);
       agregarPartido.setString(2, SERVER);
@@ -110,7 +109,7 @@ public class Base{
         agregarEquipo.executeUpdate();
         for(int j = 0; j<p[i][1].length;j++){
           existSummoner.setInt(1,  p[i][1][j]);
-          rs = existSummoner.executeQuery();
+          ResultSet rs = existSummoner.executeQuery();
           if(rs.next() && rs.getInt("x") == 1){
               System.out.println("Summoner repetido");
           }

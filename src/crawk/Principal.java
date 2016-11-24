@@ -28,7 +28,7 @@ public class Principal {
 			try{
 				long[] idpart = HT.getId();
 				for(int i=0;i<idpart.length;i++){
-					if ((idpart[i])!=0){
+					if (idpart[i]!=0 && !BD.existePartido(idpart[i]) ){
 						MT=new MatchInfo(idpart[i],SERVER);
 						MT.setAPIKey(key);
 						MT.prepare();
