@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 /**
 * SummonerInfo {@link SummonerInfo} is the class that handles all data for a certain
 * Summoner i.e Summoner minion = new Summoner("A Minion With IE", "EUNE");
@@ -36,11 +37,12 @@ private long Id;
 private String region;
 private String API_KEY;
 int responseCode;
-int[][][] jugadores;
-String[][] nombres;
-String[] valores = new String[3];
-int creation;
 HttpURLConnection connect;
+Partido partido = new Partido();
+Jugador[] jugadores = new Jugador[10];
+Summoner[] summoners = new Summoner[10];
+ArrayList<Kill> kills = new ArrayList<Kill>();
+Equipo[] equipos = new Equipo[2];
 
 /**
 * Constructor for {@link SummonerInfo}.
@@ -96,37 +98,23 @@ JsonParser parser = new JsonParser();
 JsonElement element = parser.parse(in);
 json = element.getAsJsonObject();
 if (json.isJsonObject()) {
-  valores[2]= json.get("matchVersion").getAsString();
-  valores[0]=json.get("queueType").getAsString();
-  valores[1]=json.get("season").getAsString();
-  creation=json.get("matchCreation").getAsInt();
+  partido.queuetype=json.get("queueType").getAsString();
+  partido.season=json.get("season").getAsString();
+  partido.version= json.get("matchVersion").getAsString();
+  partido.creation=json.get("matchCreation").getAsInt();
 	JsonArray participants = json.getAsJsonArray("participants");
 	JsonArray idd=json.getAsJsonArray("participantIdentities");
-	int ganadores=0;
-	int perdedores=0;
-	jugadores = new int[2][3][(int)idd.size()/2];
-	nombres = new String[2][(int)idd.size()/2];
 	for(int i=0;i<idd.size();i++){
 		JsonObject json2=idd.get(i).getAsJsonObject();
 		json=participants.get(i).getAsJsonObject();
-		if(json.getAsJsonObject("stats").get("winner").getAsBoolean()){
-		  if (ganadores<5){
-			jugadores[0][0][ganadores]=json.get("championId").getAsInt();
-			jugadores[0][1][ganadores]=json2.getAsJsonObject("player").get("summonerId").getAsInt();
-			nombres[0][ganadores]=json2.getAsJsonObject("player").get("summonerName").getAsString();
-			ganadores++;
-		  }
-		}
-		else{
-		  if (perdedores<5){
-			jugadores[1][0][perdedores]=json.get("championId").getAsInt();
-			jugadores[1][1][perdedores]=json2.getAsJsonObject("player").get("summonerId").getAsInt();
-			nombres[1][perdedores]=json2.getAsJsonObject("player").get("summonerName").getAsString();
-			perdedores++;
-		  }
+		jugadores[i].id=json.get("participantId").getAsInt();
+		jugadores[i].partido=partido.id;
+		jugadores[i].teamid=json.get("teamId").getAsInt();
+		jugadores[i].summoner=json2.getAsJsonObject("player").get("summonerId").getAsInt();
+		summoners[i].id=jugadores[i].summoner;
+		summoners[i].nombre=json2.getAsJsonObject("player").get("summonerName").getAsString();
 		}
 	}
-}
 in.close();
 }
 /**

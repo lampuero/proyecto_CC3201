@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.sql.PreparedStatement;
 
@@ -159,33 +160,33 @@ public class Base{
         agregarKill.setInt(5, time);
         agregarKill.executeUpdate();
     }
-    public void agregarDatos(long idpart,int[][][]p, String[][] nombres, String[] valores, int creation) throws SQLException{
-        agregarPartido.setLong(1, idpart);
+    public void agregarDatos(Partido partido,Jugador[] jugadores, Summoner[] summoners, Equipo[] equipos, ArrayList<Kill> kills) throws SQLException{
+        agregarPartido.setLong(1, partido);
         agregarPartido.setString(2, SERVER);
-        agregarPartido.setString(3, valores[0]);
-        agregarPartido.setString(4, valores[1]);
-        agregarPartido.setString(5, valores[2]);
-        agregarPartido.setInt(6, creation);
+        agregarPartido.setString(3, equipos[0]);
+        agregarPartido.setString(4, equipos[1]);
+        agregarPartido.setString(5, equipos[2]);
+        agregarPartido.setInt(6, kills);
         agregarPartido.executeUpdate();
-        System.out.println("Agregado partido "+Long.toString(idpart));
+        System.out.println("Agregado partido "+Long.toString(partido));
         for(int i = 0; i<2; i++){
-            agregarEquipo.setLong(1, idpart);
+            agregarEquipo.setLong(1, partido);
             agregarEquipo.setBoolean(3,(i==0));
             agregarEquipo.executeUpdate();
-            for(int j = 0; j<p[i][1].length;j++){
-                existSummoner.setInt(1,  p[i][1][j]);
+            for(int j = 0; j<jugadores[i][1].length;j++){
+                existSummoner.setInt(1,  jugadores[i][1][j]);
                 ResultSet rs = existSummoner.executeQuery();
                 if(rs.next() && rs.getInt("x") == 1){
                     System.out.println("Summoner repetido");
                 }
                 else{
-                    agregarSummoner.setInt(1, p[i][1][j]);
-                    agregarSummoner.setString(3, nombres[i][j]);
+                    agregarSummoner.setInt(1, jugadores[i][1][j]);
+                    agregarSummoner.setString(3, summoners[i][j]);
                     agregarSummoner.executeUpdate();
                 }
-                agregarJugador.setLong(1,idpart);
-                agregarJugador.setInt(3,p[i][1][j]);
-                agregarJugador.setInt(4,p[i][0][j]);
+                agregarJugador.setLong(1,partido);
+                agregarJugador.setInt(3,jugadores[i][1][j]);
+                agregarJugador.setInt(4,jugadores[i][0][j]);
                 agregarJugador.setBoolean(5,(i==0));
                 agregarJugador.executeUpdate();
             }

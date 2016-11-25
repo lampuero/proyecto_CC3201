@@ -33,11 +33,7 @@ public class Principal {
 						MT.setAPIKey(key);
 						MT.prepare();
 						MT.process();
-						int[][][] jugadores=MT.jugadores;
-						String[][] nombres=MT.nombres;
-						String[] valores =MT.valores;
-						int creation = MT.creation;
-						BD.agregarDatos(idpart[i],jugadores,nombres,valores,creation);
+						BD.agregarDatos(MT.partido,MT.jugadores,MT.summoners,MT.equipos,MT.kills);
 					}
 				}
 			}catch(Exception e){e.printStackTrace(System.out);}
