@@ -4,7 +4,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.Properties;
 import java.sql.PreparedStatement;
 
@@ -71,24 +70,6 @@ public class Base{
       } catch (SQLException e) {
         e.printStackTrace();
       }
-	}
-	
-	public int get_vers_id(String X){
-		try{
-		Statement s = DMC.createStatement();
-		ResultSet rs=s.executeQuery ("SELECT id FROM elopictemp.version WHERE nombre="+X+";");
-		if(rs.next()){
-			return rs.getInt("id");
-		}
-		else{
-			s= DMC.createStatement();
-			s.executeUpdate("INSERT INTO elopictemp.version (nombre) VALUES ('"+X+"')");
-			return get_vers_id(X);
-		}
-		}catch(SQLException se){
-			se.printStackTrace();
-			return get_vers_id(X);
-		}
 	}
 	
 	public int lastSummoner() throws SQLException{
@@ -211,94 +192,4 @@ public class Base{
             DMC.commit();
         }
     }
-
-    //for(int i = 0; i<5;i++){//
-
-
-
-    //}
-	  /*
-		try{
-			for(int i=0;i<5;i++){
-				for(int k=0;k<i;k++){
-					int dupla=Math.min(p[0][0][i],p[0][0][k])*1000+Math.max(p[0][0][i],p[0][0][k]);
-					Statement s = DMC.createStatement();
-					ResultSet rs=s.executeQuery ("SELECT count(*),ganados,perdidos FROM resultados WHERE dupla="+dupla+";");
-					rs.next();
-					int ganados;
-					if(rs.getInt(1)==0){
-						ganados=1;
-						s= DMC.createStatement();
-						s.executeUpdate("INSERT INTO resultados (dupla,ganados,perdidos,asobreb,bsobrea) Values ("+dupla+",1,0,0,0)");
-					}
-					else{
-						ganados=rs.getInt(2)+1;
-						Statement kk= DMC.createStatement();
-						kk.executeUpdate("UPDATE resultados set ganados="+ganados+" WHERE dupla="+dupla+"");
-					}
-				}
-			}
-			for(int i=0;i<5;i++){
-				for(int k=0;k<i;k++){
-					int dupla=Math.min(p[1][0][i],p[1][0][k])*1000+Math.max(p[1][0][i],p[1][0][k]);
-					Statement s = DMC.createStatement();
-					ResultSet rs=s.executeQuery ("SELECT count(*),ganados,perdidos FROM resultados WHERE dupla="+dupla+";");
-					rs.next();
-					int ganados;
-					if(rs.getInt(1)==0){
-						s= DMC.createStatement();
-						s.executeUpdate("INSERT INTO Resultados (dupla,ganados,perdidos,asobreb,bsobrea) Values ("+dupla+",0,1,0,0)");
-					}
-					else{
-						ganados=rs.getInt(3)+1;
-						Statement kk = DMC.createStatement();
-						kk.executeUpdate("UPDATE resultados set perdidos="+ganados+" WHERE dupla="+dupla+"");
-					}
-				}
-			}
-			for(int i=0;i<5;i++){
-				agregarsum(p[0][1][i]);
-				agregarsum(p[1][1][i]);
-				for(int k=0;k<5;k++){
-					int dupla;
-					if(p[0][0][i]<p[1][0][k]){
-						dupla=p[0][0][i]*1000+p[1][0][k];
-						Statement s = DMC.createStatement();
-						ResultSet rs=s.executeQuery ("SELECT count(*), asobreb FROM resultados WHERE dupla="+dupla+";");
-						rs.next();
-						int ganados;
-						if(rs.getInt(1)==0){
-							s= DMC.createStatement();
-							s.executeUpdate("INSERT INTO resultados (dupla,ganados,perdidos,asobreb,bsobrea) Values ("+dupla+",0,0,1,0)");
-						}
-						else{
-							ganados=rs.getInt(2)+1;
-							Statement kk = DMC.createStatement();
-							kk.executeUpdate("UPDATE resultados set asobreb="+ganados+" WHERE dupla="+dupla+"");
-						}
-					}
-					else{
-						dupla=p[1][0][k]*1000+p[0][0][i];
-						Statement s = DMC.createStatement();
-						ResultSet rs=s.executeQuery ("SELECT count(*), bsobrea FROM resultados WHERE dupla="+dupla+";");
-						rs.next();
-						int ganados;
-						if(rs.getInt(1)==0){
-							s= DMC.createStatement();
-							s.executeUpdate("INSERT INTO resultados (dupla,ganados,perdidos,asobreb,bsobrea) Values ("+dupla+",0,0,0,1)");
-						}
-						else{
-							ganados=rs.getInt(2)+1;
-							Statement kk = DMC.createStatement();
-							kk.executeUpdate("UPDATE resultados set bsobrea="+ganados+" WHERE dupla="+dupla+"");
-						}
-					}
-				}
-			}
-		}catch (Exception e){
-			System.out.println(e);
-
-		}
-		*/
-
 }

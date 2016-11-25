@@ -37,7 +37,7 @@ public class Principal {
 						String[][] nombres=MT.nombres;
 						String[] valores =MT.valores;
 						int creation = MT.creation;
-						BD.agregarPartido(idpart[i],jugadores,nombres,valores,creation);
+						BD.agregarDatos(idpart[i],jugadores,nombres,valores,creation);
 					}
 				}
 			}catch(Exception e){e.printStackTrace(System.out);}

@@ -57,7 +57,7 @@ this.region = region;
 */
 public boolean isAuthorized() throws IOException {
 URL request;
-request = new URL("https://eune.api.pvp.net/api/lol/static-data/eune/v1.2/realm?api_key=" + getAPIKey());
+request = new URL("https://eune.api.pvp.net/api/lol/static-data/eune/v1.2/realm?include_timeline=true&api_key=" + getAPIKey());
 HttpURLConnection connect = (HttpURLConnection) request.openConnection();
 return connect.getResponseCode() != 401;
 }
