@@ -27,7 +27,11 @@ public class Base{
     PreparedStatement getUltimo;
     PreparedStatement updateUltimo;
     PreparedStatement existEquipo;
-    PreparedStatement test;
+    PreparedStatement agregarChampion;
+    PreparedStatement agregarKill;
+    PreparedStatement existJugador;
+    PreparedStatement existChampion;
+    //PreparedStatement existKill;
     
 	public Base(String server){
 	  SERVER=server;
@@ -39,24 +43,30 @@ public class Base{
       props.setProperty("sslfactory","org.postgresql.ssl.NonValidatingFactory");
       try {
         DMC = DriverManager.getConnection(url, props);
-        getUltimo = DMC.prepareStatement("SELECT id FROM elopic.summoner WHERE server = ? ORDER BY last ASC LIMIT 1");
-        updateUltimo = DMC.prepareStatement("UPDATE elopic.summoner SET  last= NOW() WHERE id=? AND server=?");
-        existPartido = DMC.prepareStatement("SELECT count(*) AS x FROM elopic.partido WHERE id = ? AND server = ?");
-        agregarPartido = DMC.prepareStatement("INSERT INTO elopic.partido (id,server,queuetype,season,version,creation)  VALUES (?,?,?,?,?,?)" );
+        getUltimo = DMC.prepareStatement("SELECT id FROM elopick.summoner WHERE server = ? ORDER BY last ASC LIMIT 1");
+        updateUltimo = DMC.prepareStatement("UPDATE elopick.summoner SET  last= NOW() WHERE id=? AND server=?");
+        agregarPartido = DMC.prepareStatement("INSERT INTO elopick.partido (id,server,queuetype,season,version,creation)  VALUES (?,?,?,?,?,?)" );
         agregarEquipo = DMC.prepareStatement("INSERT INTO elopic.equipo (teamid,partido,server,ganador)  VALUES (?,?,?,?)" );
-        existEquipo = DMC.prepareStatement("SELECT COUNT (*)AS x FROM elopic.equipo WHERE teamid = ? AND partido = ? AND server = ? AND ganador = ?");
-        agregarJugador = DMC.prepareStatement("INSERT INTO elopic.Jugador (id,partido, server,teamid,summoner,champion)  VALUES (?,?,?,?,?,?)" );
-        existSummoner = DMC.prepareStatement("SELECT count(*) AS x FROM elopic.summoner WHERE id = ? AND server = ?");
-        agregarSummoner = DMC.prepareStatement("INSERT INTO elopic.Summoner (id, server, nombre, last)  VALUES (?,?,?,to_timestamp(0))" );
-        test = DMC.prepareStatement("SELECT * FROM elopic.summoner");
+        agregarJugador = DMC.prepareStatement("INSERT INTO elopic.jugador (id,partido, server,teamid,summoner,champion)  VALUES (?,?,?,?,?,?)" );
+        agregarSummoner = DMC.prepareStatement("INSERT INTO elopic.summoner (id, server, nombre, last)  VALUES (?,?,?,to_timestamp(0))" );
+        agregarChampion = DMC.prepareStatement("INSERT INTO elopic.champion (id, nombre, key) VALUES(?,?,?)");
+        agregarKill = DMC.prepareStatement("INSERT INTO elopick.kill (killer, dead, partido, server, time) VALUES (?,?,?,?,?)");
+        existPartido = DMC.prepareStatement("SELECT COUNT (*) AS x FROM elopick.partido WHERE id = ? AND server = ?");
+        existEquipo = DMC.prepareStatement("SELECT COUNT (*)AS x FROM elopick.equipo WHERE teamid = ? AND partido = ? AND server = ?");
+        existJugador = DMC.prepareStatement("SELECT COUNT(*) AS x FROM elopick.jugador WHERE id = ? AND partido = ? AND server = ?");
+        existSummoner = DMC.prepareStatement("SELECT COUNT (*) AS x FROM elopick.summoner WHERE id = ?");
+        existChampion = DMC.prepareStatement("SELECT COUNT (*) AS x FROM elopick.champion WHERE id = ?");
+        //existKill = DMC.prepareStatement("SELECT COUNT (*) AS x FROM elopick.kill WHERE id = ?");
         getUltimo.setString(1, SERVER);
         updateUltimo.setString(2, SERVER);
         agregarPartido.setString(2, SERVER);
-        existPartido.setString(2, SERVER);
         agregarEquipo.setString(3, SERVER);
         agregarJugador.setString(3, SERVER);
-        existSummoner.setString(2, SERVER);
         agregarSummoner.setString(2, SERVER);
+        agregarKill.setString(4,SERVER);
+        existPartido.setString(2, SERVER);
+        existEquipo.setString(3, SERVER);
+        existJugador.setString(3, SERVER);
         DMC.setAutoCommit(false);
       } catch (SQLException e) {
         e.printStackTrace();
@@ -130,12 +140,44 @@ public class Base{
         }
       DMC.commit();
       }
+	}
+	public boolean existeEquipo(int teamid, long partido) throws SQLException{
+	    existEquipo.setInt(1, teamid);
+	    existEquipo.setLong(2, partido);
+	    ResultSet rs = existEquipo.executeQuery();
+        return rs.getInt("x") == 1;
+    }
+    public void agregarEquipo() throws SQLException{
 
-	  //for(int i = 0; i<5;i++){//
-	  
-	    
-	    
-	  //}
+    }
+    public boolean existeJugador(int id, long partido) throws SQLException{
+        existJugador.setInt(1, id);
+        existJugador.setLong(2, partido);
+        ResultSet rs = existJugador.executeQuery();
+        return rs.getInt("x") == 1;
+    }
+    public void agregarJugador() throws SQLException{
+
+    }
+    public boolean existeSummoner(int id) throws SQLException{
+        existSummoner.setInt(1, id);
+        ResultSet rs = existSummoner.executeQuery();
+        return rs.getInt("x") == 1;
+    }
+    public void agregarSummoner() throws SQLException{}
+    public boolean existeChampion(int id) throws SQLException{
+        existChampion.setInt(1, id);
+        ResultSet rs = existChampion.executeQuery();
+        return rs.getInt("x") == 1;
+    }
+    public void agregarChampion() throws SQLException{}
+    public void agregarKill() throws SQLException{}
+
+    //for(int i = 0; i<5;i++){//
+
+
+
+    //}
 	  /*
 		try{
 			for(int i=0;i<5;i++){
@@ -171,7 +213,7 @@ public class Base{
 					else{
 						ganados=rs.getInt(3)+1;
 						Statement kk = DMC.createStatement();
-						kk.executeUpdate("UPDATE resultados set perdidos="+ganados+" WHERE dupla="+dupla+"");		
+						kk.executeUpdate("UPDATE resultados set perdidos="+ganados+" WHERE dupla="+dupla+"");
 					}
 				}
 			}
@@ -193,7 +235,7 @@ public class Base{
 						else{
 							ganados=rs.getInt(2)+1;
 							Statement kk = DMC.createStatement();
-							kk.executeUpdate("UPDATE resultados set asobreb="+ganados+" WHERE dupla="+dupla+"");		
+							kk.executeUpdate("UPDATE resultados set asobreb="+ganados+" WHERE dupla="+dupla+"");
 						}
 					}
 					else{
@@ -209,19 +251,15 @@ public class Base{
 						else{
 							ganados=rs.getInt(2)+1;
 							Statement kk = DMC.createStatement();
-							kk.executeUpdate("UPDATE resultados set bsobrea="+ganados+" WHERE dupla="+dupla+"");		
+							kk.executeUpdate("UPDATE resultados set bsobrea="+ganados+" WHERE dupla="+dupla+"");
 						}
 					}
 				}
 			}
 		}catch (Exception e){
 			System.out.println(e);
-	
+
 		}
 		*/
-	}
-    public void agregarJugador(){
-
-    }
 
 }
