@@ -105,41 +105,17 @@ public class Base{
 	  ResultSet rs = existPartido.executeQuery();
 	  return rs.getInt("x") == 1;
 	}
-	public void agregarPartido(long idpart,int[][][]p, String[][] nombres, String[] valores, int creation) throws SQLException{
-	  if(existePartido(idpart)){
+	public void agregarPartido(long id, String queuetype, String season, String version, int creation) throws SQLException{
+	  if(existePartido(id)){
 	    return;
 	  }
-      agregarPartido.setLong(1, idpart);
+      agregarPartido.setLong(1, id);
       agregarPartido.setString(2, SERVER);
-      agregarPartido.setString(3, valores[0]);
-      agregarPartido.setString(4, valores[1]);
-      agregarPartido.setString(5, valores[2]);
+      agregarPartido.setString(3, queuetype);
+      agregarPartido.setString(4, season);
+      agregarPartido.setString(5, version);
       agregarPartido.setInt(6, creation);
       agregarPartido.executeUpdate();
-      System.out.println("Agregado partido "+Long.toString(idpart));
-      for(int i = 0; i<2; i++){
-        agregarEquipo.setLong(1, idpart);
-        agregarEquipo.setBoolean(3,(i==0));
-        agregarEquipo.executeUpdate();
-        for(int j = 0; j<p[i][1].length;j++){
-          existSummoner.setInt(1,  p[i][1][j]);
-          ResultSet rs = existSummoner.executeQuery();
-          if(rs.next() && rs.getInt("x") == 1){
-              System.out.println("Summoner repetido");
-          }
-          else{
-            agregarSummoner.setInt(1, p[i][1][j]);
-            agregarSummoner.setString(3, nombres[i][j]);
-            agregarSummoner.executeUpdate();
-          }
-          agregarJugador.setLong(1,idpart);
-          agregarJugador.setInt(3,p[i][1][j]);
-          agregarJugador.setInt(4,p[i][0][j]);
-          agregarJugador.setBoolean(5,(i==0));
-          agregarJugador.executeUpdate();
-        }
-      DMC.commit();
-      }
 	}
 	public boolean existeEquipo(int teamid, long partido) throws SQLException{
 	    existEquipo.setInt(1, teamid);
@@ -147,8 +123,13 @@ public class Base{
 	    ResultSet rs = existEquipo.executeQuery();
         return rs.getInt("x") == 1;
     }
-    public void agregarEquipo() throws SQLException{
-
+    public void agregarEquipo(int teamid, long partido, boolean ganador) throws SQLException{
+	    if (existeEquipo(teamid, partido))
+	        return;
+	    agregarEquipo.setInt(1, teamid);
+	    agregarEquipo.setLong(2, partido);
+	    agregarEquipo.setBoolean(4, ganador);
+	    agregarEquipo.executeUpdate();
     }
     public boolean existeJugador(int id, long partido) throws SQLException{
         existJugador.setInt(1, id);
@@ -156,22 +137,80 @@ public class Base{
         ResultSet rs = existJugador.executeQuery();
         return rs.getInt("x") == 1;
     }
-    public void agregarJugador() throws SQLException{
-
+    public void agregarJugador(int id, long partido,int teamid, int champion, int summoner) throws SQLException{
+        if (existeJugador(id, partido))
+            return;
+        agregarJugador.setInt(1, id);
+        agregarJugador.setLong(2, partido);
+        agregarJugador.setInt(4, teamid);
+        agregarJugador.setInt(5, champion);
+        agregarJugador.setInt(6, summoner);
+        agregarJugador.executeUpdate();
     }
     public boolean existeSummoner(int id) throws SQLException{
         existSummoner.setInt(1, id);
         ResultSet rs = existSummoner.executeQuery();
         return rs.getInt("x") == 1;
     }
-    public void agregarSummoner() throws SQLException{}
+    public void agregarSummoner(int id, String nombre) throws SQLException{
+        if (existeSummoner(id))
+            return;
+	    agregarSummoner.setInt(1, id);
+        agregarSummoner.setString(2, nombre);
+        agregarSummoner.executeUpdate();
+    }
     public boolean existeChampion(int id) throws SQLException{
         existChampion.setInt(1, id);
         ResultSet rs = existChampion.executeQuery();
         return rs.getInt("x") == 1;
     }
-    public void agregarChampion() throws SQLException{}
-    public void agregarKill() throws SQLException{}
+    public void agregarChampion(int id, String nombre) throws SQLException{
+        if (existeChampion(id))
+            return;
+        agregarChampion.setInt(1, id);
+        agregarChampion.setString(2, nombre);
+        agregarChampion.executeUpdate();
+    }
+    public void agregarKill(int killer, int dead, long partido, int time) throws SQLException{
+        agregarKill.setInt(1, killer);
+        agregarKill.setInt(2, dead);
+        agregarKill.setLong(3, partido);
+        agregarKill.setInt(5, time);
+        agregarKill.executeUpdate();
+    }
+    public void agregarDatos(long idpart,int[][][]p, String[][] nombres, String[] valores, int creation) throws SQLException{
+        agregarPartido.setLong(1, idpart);
+        agregarPartido.setString(2, SERVER);
+        agregarPartido.setString(3, valores[0]);
+        agregarPartido.setString(4, valores[1]);
+        agregarPartido.setString(5, valores[2]);
+        agregarPartido.setInt(6, creation);
+        agregarPartido.executeUpdate();
+        System.out.println("Agregado partido "+Long.toString(idpart));
+        for(int i = 0; i<2; i++){
+            agregarEquipo.setLong(1, idpart);
+            agregarEquipo.setBoolean(3,(i==0));
+            agregarEquipo.executeUpdate();
+            for(int j = 0; j<p[i][1].length;j++){
+                existSummoner.setInt(1,  p[i][1][j]);
+                ResultSet rs = existSummoner.executeQuery();
+                if(rs.next() && rs.getInt("x") == 1){
+                    System.out.println("Summoner repetido");
+                }
+                else{
+                    agregarSummoner.setInt(1, p[i][1][j]);
+                    agregarSummoner.setString(3, nombres[i][j]);
+                    agregarSummoner.executeUpdate();
+                }
+                agregarJugador.setLong(1,idpart);
+                agregarJugador.setInt(3,p[i][1][j]);
+                agregarJugador.setInt(4,p[i][0][j]);
+                agregarJugador.setBoolean(5,(i==0));
+                agregarJugador.executeUpdate();
+            }
+            DMC.commit();
+        }
+    }
 
     //for(int i = 0; i<5;i++){//
 
