@@ -39,17 +39,22 @@ private String API_KEY;
 int responseCode;
 HttpURLConnection connect;
 Partido partido = new Partido();
-Jugador[] jugadores = new Jugador[10];
-Summoner[] summoners = new Summoner[10];
-ArrayList<Kill> kills = new ArrayList<Kill>();
-Equipo[] equipos = new Equipo[2];
+Jugador[] jugadores;
+Summoner[] summoners;
+ArrayList<Kill> kills;
+Equipo[] equipos;
 
 /**
 * Constructor for {@link SummonerInfo}.
 */
 public MatchInfo(long idpart, String region) {
-this.Id = idpart;
-this.region = region;
+  this.Id = idpart;
+  this.region = region;
+  equipos = new Equipo[2];
+  jugadores = new Jugador[10];
+  summoners = new Summoner[10];
+  kills = new ArrayList<Kill>();
+  
 }
 /**
 * Checks if the API Key is valid, if it is it will return true, otherwise false
@@ -59,7 +64,7 @@ this.region = region;
 */
 public boolean isAuthorized() throws IOException {
 URL request;
-request = new URL("https://eune.api.pvp.net/api/lol/static-data/eune/v1.2/realm?include_timeline=true&api_key=" + getAPIKey());
+request = new URL("https://eune.api.pvp.net/api/lol/static-data/eune/v1.2/realm?api_key=" + getAPIKey());
 HttpURLConnection connect = (HttpURLConnection) request.openConnection();
 return connect.getResponseCode() != 401;
 }
@@ -70,7 +75,7 @@ return connect.getResponseCode() != 401;
 void prepare() throws IOException {
 URL request;
 request = new URL("https://" + region + ".api.pvp.net/api/lol/" + region + "/v2.2/match/" +
-Id + "?api_key=" + getAPIKey());
+Id + "?includeTimeline=true&api_key=" + getAPIKey());
 connect = (HttpURLConnection) request.openConnection();
 setResponseCode(connect.getResponseCode());
 if (connect.getResponseCode() == 401) {
@@ -84,13 +89,64 @@ if (connect.getResponseCode() == 429) {
 	try {
 		Thread.sleep(10000);
 	} catch (InterruptedException e) {
-		// TODO Auto-generated catch block
 		e.printStackTrace();
 	}
 	System.out.println("exceded Match");
 	prepare();
 }
 }
+private void agregarEquipos(JsonObject json){
+  JsonArray teams = json.getAsJsonArray("teams");
+  JsonObject team = teams.get(1).getAsJsonObject();
+  equipos[0]= new Equipo();
+  equipos[0].partido = Id;
+  equipos[0].ganador = team.get("winner").getAsBoolean();
+  equipos[0].teamid = team.get("teamId").getAsInt();
+  equipos[1] = new Equipo();
+  equipos[1].partido = Id;
+  equipos[1].ganador = !equipos[0].ganador;
+  equipos[1].teamid = 300-team.get("teamId").getAsInt();
+}
+
+private void agregarJugadores(JsonObject json){
+  JsonArray participants = json.getAsJsonArray("participants");
+  JsonArray id=json.getAsJsonArray("participantIdentities");
+  for(int i=0;i<id.size();i++){
+      JsonObject currentId=id.get(i).getAsJsonObject();
+      JsonObject currentP=participants.get(i).getAsJsonObject();
+      jugadores[i]= new Jugador();
+      summoners[i]= new Summoner();
+      jugadores[i].champion=currentP.get("championId").getAsInt();
+      jugadores[i].teamid=currentP.get("teamId").getAsInt();
+      jugadores[i].id=currentP.get("participantId").getAsInt();
+      jugadores[i].partido=Id;
+      jugadores[i].summoner=currentId.getAsJsonObject("player").get("summonerId").getAsInt();
+      summoners[i].id=jugadores[i].summoner;
+      summoners[i].nombre=currentId.getAsJsonObject("player").get("summonerName").getAsString();
+      }
+}
+
+private void agregarKills(JsonObject json){
+  JsonObject timeline = json.getAsJsonObject("timeline");
+  JsonArray frames = timeline.getAsJsonArray("frames");
+  for(int i=1;i<frames.size();i++){
+    JsonObject frame = frames.get(i).getAsJsonObject();
+    JsonArray events = frame.getAsJsonArray("events");
+    for(int j=1;j<events.size();j++){
+      JsonObject event= events.get(j).getAsJsonObject();
+      String eventType=event.get("eventType").getAsString();
+      if(eventType.equals("CHAMPION_KILL")){
+        Kill actual = new Kill();
+        actual.partido=Id;
+        actual.time=event.get("timestamp").getAsInt();
+        actual.dead=event.get("victimId").getAsInt();
+        actual.killer=event.get("killerId").getAsInt();
+        kills.add(actual);
+      }
+    }
+  }
+}
+
 public void process() throws IOException {
 JsonObject json;
 BufferedReader in = new BufferedReader(new InputStreamReader(connect.getInputStream()));
@@ -98,25 +154,19 @@ JsonParser parser = new JsonParser();
 JsonElement element = parser.parse(in);
 json = element.getAsJsonObject();
 if (json.isJsonObject()) {
+  partido.id=Id;
   partido.queuetype=json.get("queueType").getAsString();
   partido.season=json.get("season").getAsString();
   partido.version= json.get("matchVersion").getAsString();
   partido.creation=json.get("matchCreation").getAsInt();
-	JsonArray participants = json.getAsJsonArray("participants");
-	JsonArray idd=json.getAsJsonArray("participantIdentities");
-	for(int i=0;i<idd.size();i++){
-		JsonObject json2=idd.get(i).getAsJsonObject();
-		json=participants.get(i).getAsJsonObject();
-		jugadores[i].id=json.get("participantId").getAsInt();
-		jugadores[i].partido=partido.id;
-		jugadores[i].teamid=json.get("teamId").getAsInt();
-		jugadores[i].summoner=json2.getAsJsonObject("player").get("summonerId").getAsInt();
-		summoners[i].id=jugadores[i].summoner;
-		summoners[i].nombre=json2.getAsJsonObject("player").get("summonerName").getAsString();
-		}
-	}
+  agregarEquipos(json);
+  agregarJugadores(json);
+  agregarKills(json);
+  
+  }
 in.close();
 }
+
 /**
 * Gets The Region of the summoner.
 *
