@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Properties;
 import java.sql.PreparedStatement;
 
@@ -161,36 +162,26 @@ public class Base{
         agregarKill.executeUpdate();
     }
     public void agregarDatos(Partido partido,Jugador[] jugadores, Summoner[] summoners, Equipo[] equipos, ArrayList<Kill> kills) throws SQLException{
-        agregarPartido.setLong(1, partido);
-        agregarPartido.setString(2, SERVER);
-        agregarPartido.setString(3, equipos[0]);
-        agregarPartido.setString(4, equipos[1]);
-        agregarPartido.setString(5, equipos[2]);
-        agregarPartido.setInt(6, kills);
-        agregarPartido.executeUpdate();
-        System.out.println("Agregado partido "+Long.toString(partido));
-        for(int i = 0; i<2; i++){
-            agregarEquipo.setLong(1, partido);
-            agregarEquipo.setBoolean(3,(i==0));
-            agregarEquipo.executeUpdate();
-            for(int j = 0; j<jugadores[i][1].length;j++){
-                existSummoner.setInt(1,  jugadores[i][1][j]);
-                ResultSet rs = existSummoner.executeQuery();
-                if(rs.next() && rs.getInt("x") == 1){
-                    System.out.println("Summoner repetido");
-                }
-                else{
-                    agregarSummoner.setInt(1, jugadores[i][1][j]);
-                    agregarSummoner.setString(3, summoners[i][j]);
-                    agregarSummoner.executeUpdate();
-                }
-                agregarJugador.setLong(1,partido);
-                agregarJugador.setInt(3,jugadores[i][1][j]);
-                agregarJugador.setInt(4,jugadores[i][0][j]);
-                agregarJugador.setBoolean(5,(i==0));
-                agregarJugador.executeUpdate();
-            }
-            DMC.commit();
+	    agregarPartido(partido.id, partido.queuetype, partido.season, partido.version, partido.creation);        
+        //System.out.println("Agregado partido "+partido);
+        for(int i = 0; i<jugadores.length; i++){
+            agregarJugador(jugadores[i].id, jugadores[i].partido, jugadores[i].teamid, jugadores[i].champion, jugadores[i].summoner);
+            //System.out.println("Agregado jugador "+jugadores[i]);
         }
+        for (int i=0; i<summoners.length;i++){
+            agregarSummoner(summoners[i].id, summoners[i].nombre);
+            //System.out.println("Agregado summoner "+summoners[i]);
+        }
+        for (Equipo equipo: equipos) {
+            agregarEquipo(equipo.teamid, equipo.partido, equipo.ganador);
+            //System.out.println("Agregado equipo "+equipo);
+        }
+        Iterator<Kill> killIterator = kills.iterator();
+        while (killIterator.hasNext()){
+            Kill kill = killIterator.next();
+            agregarKill(kill.killer, kill.dead, kill.partido, kill.time);
+            //System.out.println("Agregado kill "+kill);
+        }
+        DMC.commit();
     }
 }
