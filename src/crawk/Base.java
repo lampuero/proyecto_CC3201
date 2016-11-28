@@ -164,10 +164,6 @@ public class Base{
     public void agregarDatos(Partido partido,Jugador[] jugadores, Summoner[] summoners, Equipo[] equipos, ArrayList<Kill> kills) throws SQLException{
 	    agregarPartido(partido.id, partido.queuetype, partido.season, partido.version, partido.creation);        
         //System.out.println("Agregado partido "+partido);
-        for(int i = 0; i<jugadores.length; i++){
-            agregarJugador(jugadores[i].id, jugadores[i].partido, jugadores[i].teamid, jugadores[i].champion, jugadores[i].summoner);
-            //System.out.println("Agregado jugador "+jugadores[i]);
-        }
         for (int i=0; i<summoners.length;i++){
             agregarSummoner(summoners[i].id, summoners[i].nombre);
             //System.out.println("Agregado summoner "+summoners[i]);
@@ -175,6 +171,10 @@ public class Base{
         for (Equipo equipo: equipos) {
             agregarEquipo(equipo.teamid, equipo.partido, equipo.ganador);
             //System.out.println("Agregado equipo "+equipo);
+        }
+        for(int i = 0; i<jugadores.length; i++){
+          agregarJugador(jugadores[i].id, jugadores[i].partido, jugadores[i].teamid, jugadores[i].champion, jugadores[i].summoner);
+          //System.out.println("Agregado jugador "+jugadores[i]);
         }
         Iterator<Kill> killIterator = kills.iterator();
         while (killIterator.hasNext()){
