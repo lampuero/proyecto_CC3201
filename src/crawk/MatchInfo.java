@@ -39,8 +39,8 @@ private String API_KEY;
 int responseCode;
 HttpURLConnection connect;
 Partido partido = new Partido();
-Jugador[] jugadores;
-Summoner[] summoners;
+ArrayList<Jugador> jugadores;
+ArrayList<Summoner> summoners;
 ArrayList<Kill> kills;
 Equipo[] equipos;
 
@@ -51,8 +51,8 @@ public MatchInfo(long idpart, String region) {
   this.Id = idpart;
   this.region = region;
   equipos = new Equipo[2];
-  jugadores = new Jugador[10];
-  summoners = new Summoner[10];
+  jugadores = new ArrayList<Jugador>();
+  summoners = new ArrayList<Summoner>();
   kills = new ArrayList<Kill>();
   
 }
@@ -114,16 +114,18 @@ private void agregarJugadores(JsonObject json){
   for(int i=0;i<id.size();i++){
       JsonObject currentId=id.get(i).getAsJsonObject();
       JsonObject currentP=participants.get(i).getAsJsonObject();
-      jugadores[i]= new Jugador();
-      summoners[i]= new Summoner();
-      jugadores[i].champion=currentP.get("championId").getAsInt();
-      jugadores[i].teamid=currentP.get("teamId").getAsInt();
-      jugadores[i].id=currentP.get("participantId").getAsInt();
-      jugadores[i].partido=Id;
-      jugadores[i].summoner=currentId.getAsJsonObject("player").get("summonerId").getAsInt();
-      summoners[i].id=jugadores[i].summoner;
-      summoners[i].nombre=currentId.getAsJsonObject("player").get("summonerName").getAsString();
-      }
+      Jugador jAct = new Jugador();
+      Summoner sAct = new Summoner();
+      jAct.champion=currentP.get("championId").getAsInt();
+      jAct.teamid=currentP.get("teamId").getAsInt();
+      jAct.id=currentP.get("participantId").getAsInt();
+      jAct.partido=Id;
+      jAct.summoner=currentId.getAsJsonObject("player").get("summonerId").getAsInt();
+      sAct.id=jAct.summoner;
+      sAct.nombre=currentId.getAsJsonObject("player").get("summonerName").getAsString();
+      jugadores.add(jAct);
+      summoners.add(sAct);
+  }
 }
 
 private void agregarKills(JsonObject json){

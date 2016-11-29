@@ -161,7 +161,7 @@ public class Base{
         agregarKill.setInt(5, time);
         agregarKill.executeUpdate();
     }
-    public void agregarDatos(Partido partido,Jugador[] jugadores, Summoner[] summoners, Equipo[] equipos, ArrayList<Kill> kills) throws SQLException{
+    public void agregarDatos(Partido partido, ArrayList<Jugador> jugadores, ArrayList<Summoner> summoners, Equipo[] equipos, ArrayList<Kill> kills) throws SQLException{
 	    // esto va sin un loop porque se ingresa un solo partido
 	    agregarPartido(partido.id, partido.queuetype, partido.season, partido.version, partido.creation);        
         System.out.println("Agregado partido "+partido);
