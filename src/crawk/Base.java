@@ -45,10 +45,10 @@ public class Base{
       try {
         DMC = DriverManager.getConnection(url, props);
         getUltimo = DMC.prepareStatement("SELECT id FROM elopick.summoner WHERE server = ? ORDER BY last ASC LIMIT 1");
-        updateUltimo = DMC.prepareStatement("UPDATE elopick.summoner SET  last= NOW() WHERE id=? AND server=?");
+        updateUltimo = DMC.prepareStatement("UPDATE elopick.summoner SET  last = NOW() WHERE id = ? AND server = ?");
         agregarPartido = DMC.prepareStatement("INSERT INTO elopick.partido (id,server,queuetype,season,version,creation)  VALUES (?,?,?,?,?,?)" );
         agregarEquipo = DMC.prepareStatement("INSERT INTO elopick.equipo (teamid,partido,server,ganador)  VALUES (?,?,?,?)" );
-        agregarJugador = DMC.prepareStatement("INSERT INTO elopick.jugador (id,partido, server,teamid,summoner,champion)  VALUES (?,?,?,?,?,?)" );
+        agregarJugador = DMC.prepareStatement("INSERT INTO elopick.jugador (id,partido, server,teamid,champion,summoner)  VALUES (?,?,?,?,?,?)" );
         agregarSummoner = DMC.prepareStatement("INSERT INTO elopick.summoner (id, server, nombre, last)  VALUES (?,?,?,to_timestamp(0))" );
         agregarChampion = DMC.prepareStatement("INSERT INTO elopick.champion (id, nombre, key) VALUES(?,?,?)");
         agregarKill = DMC.prepareStatement("INSERT INTO elopick.kill (killer, dead, partido, server, time) VALUES (?,?,?,?,?)");
@@ -74,17 +74,19 @@ public class Base{
 	}
 	
 	public int lastSummoner() throws SQLException{
-		ResultSet rs=getUltimo.executeQuery ();
+		ResultSet rs=getUltimo.executeQuery();
 		rs.next();
 		int Resultado=rs.getInt(1);
 		updateUltimo.setInt(1,Resultado);
 		updateUltimo.executeUpdate();
+		DMC.commit();
 		return Resultado;
 	}
 
 	public boolean existePartido(long idpart) throws SQLException{
 	  existPartido.setLong(1, idpart);
 	  ResultSet rs = existPartido.executeQuery();
+	  rs.next();
 	  return rs.getInt("x") == 1;
 	}
 	public void agregarPartido(long id, String queuetype, String season, String version, int creation) throws SQLException{
@@ -132,13 +134,14 @@ public class Base{
     public boolean existeSummoner(int id) throws SQLException{
         existSummoner.setInt(1, id);
         ResultSet rs = existSummoner.executeQuery();
+        rs.next();
         return rs.getInt("x") == 1;
     }
     public void agregarSummoner(int id, String nombre) throws SQLException{
         if (existeSummoner(id))
             return;
 	    agregarSummoner.setInt(1, id);
-        agregarSummoner.setString(2, nombre);
+        agregarSummoner.setString(3, nombre);
         agregarSummoner.executeUpdate();
     }
     public boolean existeChampion(int id) throws SQLException{
@@ -164,20 +167,20 @@ public class Base{
 	    // esto va sin un loop porque se ingresa un solo partido
 	    agregarPartido(partido.id, partido.queuetype, partido.season, partido.version, partido.creation);        
         System.out.println("Agregado partido "+partido);
+        for (Summoner summoner : summoners){
+          // si no cachan este es un for each loop en java
+          agregarSummoner(summoner.id, summoner.nombre);
+          System.out.println("Agregado summoner "+summoner);
+        }
+        for (Equipo equipo : equipos) {
+          // si no cachan este es un for each loop en java
+          agregarEquipo(equipo.teamid, equipo.partido, equipo.ganador);
+          System.out.println("Agregado equipo "+equipo);
+        }
         for(Jugador jugador : jugadores){
             // si no cachan este es un for each loop en java
             agregarJugador(jugador.id, jugador.partido, jugador.teamid, jugador.champion, jugador.summoner);
             System.out.println("Agregado jugador "+jugador);
-        }
-        for (Summoner summoner : summoners){
-            // si no cachan este es un for each loop en java
-            agregarSummoner(summoner.id, summoner.nombre);
-            System.out.println("Agregado summoner "+summoner);
-        }
-        for (Equipo equipo : equipos) {
-            // si no cachan este es un for each loop en java
-            agregarEquipo(equipo.teamid, equipo.partido, equipo.ganador);
-            System.out.println("Agregado equipo "+equipo);
         }
         Iterator<Kill> killIterator = kills.iterator();
         while (killIterator.hasNext()){
