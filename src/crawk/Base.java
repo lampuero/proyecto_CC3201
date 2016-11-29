@@ -162,6 +162,7 @@ public class Base{
         agregarKill.executeUpdate();
     }
     public void agregarDatos(Partido partido,Jugador[] jugadores, Summoner[] summoners, Equipo[] equipos, ArrayList<Kill> kills) throws SQLException{
+	    // esto va sin un loop porque se ingresa un solo partido
 	    agregarPartido(partido.id, partido.queuetype, partido.season, partido.version, partido.creation);        
         System.out.println("Agregado partido "+partido);
         for(Jugador jugador : jugadores){
@@ -170,10 +171,12 @@ public class Base{
             System.out.println("Agregado jugador "+jugador);
         }
         for (Summoner summoner : summoners){
+            // si no cachan este es un for each loop en java
             agregarSummoner(summoner.id, summoner.nombre);
             System.out.println("Agregado summoner "+summoner);
         }
         for (Equipo equipo : equipos) {
+            // si no cachan este es un for each loop en java
             agregarEquipo(equipo.teamid, equipo.partido, equipo.ganador);
             System.out.println("Agregado equipo "+equipo);
         }
