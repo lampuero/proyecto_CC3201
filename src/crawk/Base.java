@@ -47,17 +47,16 @@ public class Base{
         getUltimo = DMC.prepareStatement("SELECT id FROM elopick.summoner WHERE server = ? ORDER BY last ASC LIMIT 1");
         updateUltimo = DMC.prepareStatement("UPDATE elopick.summoner SET  last= NOW() WHERE id=? AND server=?");
         agregarPartido = DMC.prepareStatement("INSERT INTO elopick.partido (id,server,queuetype,season,version,creation)  VALUES (?,?,?,?,?,?)" );
-        agregarEquipo = DMC.prepareStatement("INSERT INTO elopic.equipo (teamid,partido,server,ganador)  VALUES (?,?,?,?)" );
-        agregarJugador = DMC.prepareStatement("INSERT INTO elopic.jugador (id,partido, server,teamid,summoner,champion)  VALUES (?,?,?,?,?,?)" );
-        agregarSummoner = DMC.prepareStatement("INSERT INTO elopic.summoner (id, server, nombre, last)  VALUES (?,?,?,to_timestamp(0))" );
-        agregarChampion = DMC.prepareStatement("INSERT INTO elopic.champion (id, nombre, key) VALUES(?,?,?)");
+        agregarEquipo = DMC.prepareStatement("INSERT INTO elopick.equipo (teamid,partido,server,ganador)  VALUES (?,?,?,?)" );
+        agregarJugador = DMC.prepareStatement("INSERT INTO elopick.jugador (id,partido, server,teamid,summoner,champion)  VALUES (?,?,?,?,?,?)" );
+        agregarSummoner = DMC.prepareStatement("INSERT INTO elopick.summoner (id, server, nombre, last)  VALUES (?,?,?,to_timestamp(0))" );
+        agregarChampion = DMC.prepareStatement("INSERT INTO elopick.champion (id, nombre, key) VALUES(?,?,?)");
         agregarKill = DMC.prepareStatement("INSERT INTO elopick.kill (killer, dead, partido, server, time) VALUES (?,?,?,?,?)");
         existPartido = DMC.prepareStatement("SELECT COUNT (*) AS x FROM elopick.partido WHERE id = ? AND server = ?");
         existEquipo = DMC.prepareStatement("SELECT COUNT (*)AS x FROM elopick.equipo WHERE teamid = ? AND partido = ? AND server = ?");
         existJugador = DMC.prepareStatement("SELECT COUNT(*) AS x FROM elopick.jugador WHERE id = ? AND partido = ? AND server = ?");
         existSummoner = DMC.prepareStatement("SELECT COUNT (*) AS x FROM elopick.summoner WHERE id = ?");
         existChampion = DMC.prepareStatement("SELECT COUNT (*) AS x FROM elopick.champion WHERE id = ?");
-        //existKill = DMC.prepareStatement("SELECT COUNT (*) AS x FROM elopick.kill WHERE id = ?");
         getUltimo.setString(1, SERVER);
         updateUltimo.setString(2, SERVER);
         agregarPartido.setString(2, SERVER);
@@ -107,8 +106,8 @@ public class Base{
         return rs.getInt("x") == 1;
     }
     public void agregarEquipo(int teamid, long partido, boolean ganador) throws SQLException{
-	    if (existeEquipo(teamid, partido))
-	        return;
+	    //if (existeEquipo(teamid, partido))
+	        //return;
 	    agregarEquipo.setInt(1, teamid);
 	    agregarEquipo.setLong(2, partido);
 	    agregarEquipo.setBoolean(4, ganador);
@@ -121,8 +120,8 @@ public class Base{
         return rs.getInt("x") == 1;
     }
     public void agregarJugador(int id, long partido,int teamid, int champion, int summoner) throws SQLException{
-        if (existeJugador(id, partido))
-            return;
+        //if (existeJugador(id, partido))
+            //return;
         agregarJugador.setInt(1, id);
         agregarJugador.setLong(2, partido);
         agregarJugador.setInt(4, teamid);
