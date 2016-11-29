@@ -163,24 +163,25 @@ public class Base{
     }
     public void agregarDatos(Partido partido,Jugador[] jugadores, Summoner[] summoners, Equipo[] equipos, ArrayList<Kill> kills) throws SQLException{
 	    agregarPartido(partido.id, partido.queuetype, partido.season, partido.version, partido.creation);        
-        //System.out.println("Agregado partido "+partido);
-        for(int i = 0; i<jugadores.length; i++){
-            agregarJugador(jugadores[i].id, jugadores[i].partido, jugadores[i].teamid, jugadores[i].champion, jugadores[i].summoner);
-            //System.out.println("Agregado jugador "+jugadores[i]);
+        System.out.println("Agregado partido "+partido);
+        for(Jugador jugador : jugadores){
+            // si no cachan este es un for each loop en java
+            agregarJugador(jugador.id, jugador.partido, jugador.teamid, jugador.champion, jugador.summoner);
+            System.out.println("Agregado jugador "+jugador);
         }
-        for (int i=0; i<summoners.length;i++){
-            agregarSummoner(summoners[i].id, summoners[i].nombre);
-            //System.out.println("Agregado summoner "+summoners[i]);
+        for (Summoner summoner : summoners){
+            agregarSummoner(summoner.id, summoner.nombre);
+            System.out.println("Agregado summoner "+summoner);
         }
-        for (Equipo equipo: equipos) {
+        for (Equipo equipo : equipos) {
             agregarEquipo(equipo.teamid, equipo.partido, equipo.ganador);
-            //System.out.println("Agregado equipo "+equipo);
+            System.out.println("Agregado equipo "+equipo);
         }
         Iterator<Kill> killIterator = kills.iterator();
         while (killIterator.hasNext()){
             Kill kill = killIterator.next();
             agregarKill(kill.killer, kill.dead, kill.partido, kill.time);
-            //System.out.println("Agregado kill "+kill);
+            System.out.println("Agregado kill "+kill);
         }
         DMC.commit();
     }
