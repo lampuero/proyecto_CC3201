@@ -143,7 +143,9 @@ private void agregarKills(JsonObject json){
         actual.time=event.get("timestamp").getAsInt();
         actual.dead=event.get("victimId").getAsInt();
         actual.killer=event.get("killerId").getAsInt();
-        kills.add(actual);
+        if(actual.killer!=0){
+          kills.add(actual);
+        }
       }
     }
   }

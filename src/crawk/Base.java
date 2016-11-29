@@ -186,7 +186,7 @@ public class Base{
         while (killIterator.hasNext()){
             Kill kill = killIterator.next();
             agregarKill(kill.killer, kill.dead, kill.partido, kill.time);
-            System.out.println("Agregado kill "+kill);
+            //System.out.println("Agregado kill "+kill);
         }
         DMC.commit();
     }
